@@ -1,99 +1,293 @@
-<?php require_once('header.php'); ?>
-//fetching row banner login
 <?php
-$statement = $pdo->prepare("SELECT * FROM tbl_settings WHERE id=1");
-$statement->execute();
-$result = $statement->fetchAll(PDO::FETCH_ASSOC);                            
-foreach ($result as $row) {
-    $banner_login = $row['banner_login'];
+session_start();
+error_reporting(0);
+include('includes/config.php');
+// Code user Registration
+if(isset($_POST['submit']))
+{
+$name=$_POST['fullname'];
+$email=$_POST['emailid'];
+$contactno=$_POST['contactno'];
+$password=md5($_POST['password']);
+$query=mysqli_query($con,"insert into users(name,email,contactno,password) values('$name','$email','$contactno','$password')");
+if($query)
+{
+	echo "<script>alert('You are successfully register');</script>";
 }
+else{
+echo "<script>alert('Not register something went worng');</script>";
+}
+}
+// Code for User login
+if(isset($_POST['login']))
+{
+   $email=$_POST['email'];
+   $password=md5($_POST['password']);
+$query=mysqli_query($con,"SELECT * FROM users WHERE email='$email' and password='$password'");
+$num=mysqli_fetch_array($query);
+if($num>0)
+{
+$extra="my-cart.php";
+$_SESSION['login']=$_POST['email'];
+$_SESSION['id']=$num['id'];
+$_SESSION['username']=$num['name'];
+$uip=$_SERVER['REMOTE_ADDR'];
+$status=1;
+$log=mysqli_query($con,"insert into userlog(userEmail,userip,status) values('".$_SESSION['login']."','$uip','$status')");
+$host=$_SERVER['HTTP_HOST'];
+$uri=rtrim(dirname($_SERVER['PHP_SELF']),'/\\');
+header("location:http://$host$uri/$extra");
+exit();
+}
+else
+{
+$extra="login.php";
+$email=$_POST['email'];
+$uip=$_SERVER['REMOTE_ADDR'];
+$status=0;
+$log=mysqli_query($con,"insert into userlog(userEmail,userip,status) values('$email','$uip','$status')");
+$host  = $_SERVER['HTTP_HOST'];
+$uri  = rtrim(dirname($_SERVER['PHP_SELF']),'/\\');
+header("location:http://$host$uri/$extra");
+$_SESSION['errmsg']="Invalid email id or Password";
+exit();
+}
+}
+
+
 ?>
-//login form
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta -->
+		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+	    <meta name="keywords" content="MediaCenter, Template, eCommerce">
+	    <meta name="robots" content="all">
+
+	    <title>Shopping Portal | Signi-in | Signup</title>
+
+	    <!-- Bootstrap Core CSS -->
+	    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	    
+	    <!-- Customizable CSS -->
+	    <link rel="stylesheet" href="assets/css/main.css">
+	    <link rel="stylesheet" href="assets/css/green.css">
+	    <link rel="stylesheet" href="assets/css/owl.carousel.css">
+		<link rel="stylesheet" href="assets/css/owl.transitions.css">
+		<!--<link rel="stylesheet" href="assets/css/owl.theme.css">-->
+		<link href="assets/css/lightbox.css" rel="stylesheet">
+		<link rel="stylesheet" href="assets/css/animate.min.css">
+		<link rel="stylesheet" href="assets/css/rateit.css">
+		<link rel="stylesheet" href="assets/css/bootstrap-select.min.css">
+
+		<!-- Demo Purpose Only. Should be removed in production -->
+		<link rel="stylesheet" href="assets/css/config.css">
+
+		<link href="assets/css/green.css" rel="alternate stylesheet" title="Green color">
+		<link href="assets/css/blue.css" rel="alternate stylesheet" title="Blue color">
+		<link href="assets/css/red.css" rel="alternate stylesheet" title="Red color">
+		<link href="assets/css/orange.css" rel="alternate stylesheet" title="Orange color">
+		<link href="assets/css/dark-green.css" rel="alternate stylesheet" title="Darkgreen color">
+		<!-- Demo Purpose Only. Should be removed in production : END -->
+
+		
+		<!-- Icons/Glyphs -->
+		<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+        <!-- Fonts --> 
+		<link href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
+		
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="assets/images/favicon.ico">
+<script type="text/javascript">
+function valid()
+{
+ if(document.register.password.value!= document.register.confirmpassword.value)
+{
+alert("Password and Confirm Password Field do not match  !!");
+document.register.confirmpassword.focus();
+return false;
+}
+return true;
+}
+</script>
+    	<script>
+function userAvailability() {
+$("#loaderIcon").show();
+jQuery.ajax({
+url: "check_availability.php",
+data:'email='+$("#email").val(),
+type: "POST",
+success:function(data){
+$("#user-availability-status1").html(data);
+$("#loaderIcon").hide();
+},
+error:function (){}
+});
+}
+</script>
+
+
+
+	</head>
+    <body class="cnt-home">
+	
+		
+	
+		<!-- ============================================== HEADER ============================================== -->
+<header class="header-style-1">
+
+	<!-- ============================================== TOP MENU ============================================== -->
+<?php include('includes/top-header.php');?>
+<!-- ============================================== TOP MENU : END ============================================== -->
+<?php include('includes/main-header.php');?>
+	<!-- ============================================== NAVBAR ============================================== -->
+<?php include('includes/menu-bar.php');?>
+<!-- ============================================== NAVBAR : END ============================================== -->
+
+</header>
+
+<!-- ============================================== HEADER : END ============================================== -->
+<div class="breadcrumb">
+	<div class="container">
+		<div class="breadcrumb-inner">
+			<ul class="list-inline list-unstyled">
+				<li><a href="home.html">Home</a></li>
+				<li class='active'>Authentication</li>
+			</ul>
+		</div><!-- /.breadcrumb-inner -->
+	</div><!-- /.container -->
+</div><!-- /.breadcrumb -->
+
+<div class="body-content outer-top-bd">
+	<div class="container">
+		<div class="sign-in-page inner-bottom-sm">
+			<div class="row">
+				<!-- Sign-in -->			
+<div class="col-md-6 col-sm-6 sign-in">
+	<h4 class="">sign in</h4>
+	<p class="">Hello, Welcome to your account.</p>
+	<form class="register-form outer-top-xs" method="post">
+	<span style="color:red;" >
 <?php
-if(isset($_POST['form1'])) {
-        
-    if(empty($_POST['cust_email']) || empty($_POST['cust_password'])) {
-        $error_message = LANG_VALUE_132.'<br>';
-    } else {
-        
-        $cust_email = strip_tags($_POST['cust_email']);
-        $cust_password = strip_tags($_POST['cust_password']);
-
-        $statement = $pdo->prepare("SELECT * FROM tbl_customer WHERE cust_email=?");
-        $statement->execute(array($cust_email));
-        $total = $statement->rowCount();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-        foreach($result as $row) {
-            $cust_status = $row['cust_status'];
-            $row_password = $row['cust_password'];
-        }
-
-        if($total==0) {
-            $error_message .= LANG_VALUE_133.'<br>';
-        } else {
-            //using MD5 form
-            if( $row_password != md5($cust_password) ) {
-                $error_message .= LANG_VALUE_139.'<br>';
-            } else {
-                if($cust_status == 0) {
-                    $error_message .= LANG_VALUE_148.'<br>';
-                } else {
-                    $_SESSION['customer'] = $row;
-                    header("location: ".BASE_URL."dashboard.php");
-                }
-            }
-            
-        }
-    }
-}
+echo htmlentities($_SESSION['errmsg']);
 ?>
-
-<div class="page-banner" style="background-color:#444;background-image: url(assets/uploads/<?php echo $banner_login; ?>);">
-    <div class="inner">
-        <h1><?php echo LANG_VALUE_10; ?></h1>
-    </div>
+<?php
+echo htmlentities($_SESSION['errmsg']="");
+?>
+	</span>
+		<div class="form-group">
+		    <label class="info-title" for="exampleInputEmail1">Email Address <span>*</span></label>
+		    <input type="email" name="email" class="form-control unicase-form-control text-input" id="exampleInputEmail1" >
+		</div>
+	  	<div class="form-group">
+		    <label class="info-title" for="exampleInputPassword1">Password <span>*</span></label>
+		 <input type="password" name="password" class="form-control unicase-form-control text-input" id="exampleInputPassword1" >
+		</div>
+		<div class="radio outer-xs">
+		  	<a href="forgot-password.php" class="forgot-password pull-right">Forgot your Password?</a>
+		</div>
+	  	<button type="submit" class="btn-upper btn btn-primary checkout-page-button" name="login">Login</button>
+	</form>					
 </div>
+<!-- Sign-in -->
 
-<div class="page">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="user-content">
+<!-- create a new account -->
+<div class="col-md-6 col-sm-6 create-new-account">
+	<h4 class="checkout-subtitle">create a new account</h4>
+	<p class="text title-tag-line">Create your own Shopping account.</p>
+	<form class="register-form outer-top-xs" role="form" method="post" name="register" onSubmit="return valid();">
+<div class="form-group">
+	    	<label class="info-title" for="fullname">Full Name <span>*</span></label>
+	    	<input type="text" class="form-control unicase-form-control text-input" id="fullname" name="fullname" required="required">
+	  	</div>
 
-                    
-                    <form action="" method="post">
-                        <?php $csrf->echoInputField(); ?>                  
-                        <div class="row">
-                            <div class="col-md-4"></div>
-                            <div class="col-md-4">
-                                <?php
-                                if($error_message != '') {
-                                    echo "<div class='error' style='padding: 10px;background:#f1f1f1;margin-bottom:20px;'>".$error_message."</div>";
-                                }
-                                if($success_message != '') {
-                                    echo "<div class='success' style='padding: 10px;background:#f1f1f1;margin-bottom:20px;'>".$success_message."</div>";
-                                }
-                                ?>
-                                <div class="form-group">
-                                    <label for=""><?php echo LANG_VALUE_94; ?> *</label>
-                                    <input type="email" class="form-control" name="cust_email">
-                                </div>
-                                <div class="form-group">
-                                    <label for=""><?php echo LANG_VALUE_96; ?> *</label>
-                                    <input type="password" class="form-control" name="cust_password">
-                                </div>
-                                <div class="form-group">
-                                    <label for=""></label>
-                                    <input type="submit" class="btn btn-primary" value="<?php echo LANG_VALUE_4; ?>" name="form1">
-                                </div>
-                                <a href="forget-password.php" style="color:#e4144d;"><?php echo LANG_VALUE_97; ?></a>
-                            </div>
-                        </div>                        
-                    </form>
-                </div>                
-            </div>
-        </div>
-    </div>
+
+		<div class="form-group">
+	    	<label class="info-title" for="exampleInputEmail2">Email Address <span>*</span></label>
+	    	<input type="email" class="form-control unicase-form-control text-input" id="email" onBlur="userAvailability()" name="emailid" required >
+	    	       <span id="user-availability-status1" style="font-size:12px;"></span>
+	  	</div>
+
+<div class="form-group">
+	    	<label class="info-title" for="contactno">Contact No. <span>*</span></label>
+	    	<input type="text" class="form-control unicase-form-control text-input" id="contactno" name="contactno" maxlength="10" required >
+	  	</div>
+
+<div class="form-group">
+	    	<label class="info-title" for="password">Password. <span>*</span></label>
+	    	<input type="password" class="form-control unicase-form-control text-input" id="password" name="password"  required >
+	  	</div>
+
+<div class="form-group">
+	    	<label class="info-title" for="confirmpassword">Confirm Password. <span>*</span></label>
+	    	<input type="password" class="form-control unicase-form-control text-input" id="confirmpassword" name="confirmpassword" required >
+	  	</div>
+
+
+	  	<button type="submit" name="submit" class="btn-upper btn btn-primary checkout-page-button" id="submit">Sign Up</button>
+	</form>
+	<span class="checkout-subtitle outer-top-xs">Sign Up Today And You'll Be Able To :  </span>
+	<div class="checkbox">
+	  	<label class="checkbox">
+		  	Speed your way through the checkout.
+		</label>
+		<label class="checkbox">
+		Track your orders easily.
+		</label>
+		<label class="checkbox">
+ Keep a record of all your purchases.
+		</label>
+	</div>
+</div>	
+<!-- create a new account -->			</div><!-- /.row -->
+		</div>
+<?php include('includes/brands-slider.php');?>
 </div>
+</div>
+<?php include('includes/footer.php');?>
+	<script src="assets/js/jquery-1.11.1.min.js"></script>
+	
+	<script src="assets/js/bootstrap.min.js"></script>
+	
+	<script src="assets/js/bootstrap-hover-dropdown.min.js"></script>
+	<script src="assets/js/owl.carousel.min.js"></script>
+	
+	<script src="assets/js/echo.min.js"></script>
+	<script src="assets/js/jquery.easing-1.3.min.js"></script>
+	<script src="assets/js/bootstrap-slider.min.js"></script>
+    <script src="assets/js/jquery.rateit.min.js"></script>
+    <script type="text/javascript" src="assets/js/lightbox.min.js"></script>
+    <script src="assets/js/bootstrap-select.min.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+	<script src="assets/js/scripts.js"></script>
 
-<?php require_once('footer.php'); ?>
+	<!-- For demo purposes – can be removed on production -->
+	
+	<script src="switchstylesheet/switchstylesheet.js"></script>
+	
+	<script>
+		$(document).ready(function(){ 
+			$(".changecolor").switchstylesheet( { seperator:"color"} );
+			$('.show-theme-options').click(function(){
+				$(this).parent().toggleClass('open');
+				return false;
+			});
+		});
+
+		$(window).bind("load", function() {
+		   $('.show-theme-options').delay(2000).trigger('click');
+		});
+	</script>
+	<!-- For demo purposes – can be removed on production : End -->
+
+	
+
+</body>
+</html>

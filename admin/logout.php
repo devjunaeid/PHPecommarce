@@ -1,7 +1,10 @@
-<?php 
-ob_start();
+<?php
 session_start();
-include 'inc/config.php'; 
-unset($_SESSION['user']);
-header("location: login.php"); 
+$_SESSION['alogin']=="";
+session_unset();
+//session_destroy();
+$_SESSION['errmsg']="You have successfully logout";
 ?>
+<script language="javascript">
+document.location="index.php";
+</script>

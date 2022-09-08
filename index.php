@@ -1,487 +1,565 @@
-<?php require_once('header.php'); ?>
-
 <?php
-$statement = $pdo->prepare("SELECT * FROM tbl_settings WHERE id=1");
-$statement->execute();
-$result = $statement->fetchAll(PDO::FETCH_ASSOC);
-foreach ($result as $row)
-{
-    $cta_title = $row['cta_title'];
-    $cta_content = $row['cta_content'];
-    $cta_read_more_text = $row['cta_read_more_text'];
-    $cta_read_more_url = $row['cta_read_more_url'];
-    $cta_photo = $row['cta_photo'];
-    $featured_product_title = $row['featured_product_title'];
-    $featured_product_subtitle = $row['featured_product_subtitle'];
-    $latest_product_title = $row['latest_product_title'];
-    $latest_product_subtitle = $row['latest_product_subtitle'];
-    $popular_product_title = $row['popular_product_title'];
-    $popular_product_subtitle = $row['popular_product_subtitle'];
-    $total_featured_product_home = $row['total_featured_product_home'];
-    $total_latest_product_home = $row['total_latest_product_home'];
-    $total_popular_product_home = $row['total_popular_product_home'];
-    $home_service_on_off = $row['home_service_on_off'];
-    $home_welcome_on_off = $row['home_welcome_on_off'];
-    $home_featured_product_on_off = $row['home_featured_product_on_off'];
-    $home_latest_product_on_off = $row['home_latest_product_on_off'];
-    $home_popular_product_on_off = $row['home_popular_product_on_off'];
-
+session_start();
+error_reporting(0);
+include('includes/config.php');
+if(isset($_GET['action']) && $_GET['action']=="add"){
+	$id=intval($_GET['id']);
+	if(isset($_SESSION['cart'][$id])){
+		$_SESSION['cart'][$id]['quantity']++;
+	}else{
+		$sql_p="SELECT * FROM products WHERE id={$id}";
+		$query_p=mysqli_query($con,$sql_p);
+		if(mysqli_num_rows($query_p)!=0){
+			$row_p=mysqli_fetch_array($query_p);
+			$_SESSION['cart'][$row_p['id']]=array("quantity" => 1, "price" => $row_p['productPrice']);
+		
+		}else{
+			$message="Product ID is invalid";
+		}
+	}
+		echo "<script>alert('Product has been added to the cart')</script>";
+		echo "<script type='text/javascript'> document.location ='my-cart.php'; </script>";
 }
 
 
 ?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Meta -->
+		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+	    <meta name="keywords" content="MediaCenter, Template, eCommerce">
+	    <meta name="robots" content="all">
 
-<div id="bootstrap-touch-slider" class="carousel bs-slider fade control-round indicators-line" data-ride="carousel" data-pause="hover" data-interval="false" >
+	    <title>Shopping Portal Home Page</title>
 
-    <!-- Indicators -->
-    <ol class="carousel-indicators">
-        <?php
-        $i=0;
-        $statement = $pdo->prepare("SELECT * FROM tbl_slider");
-        $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($result as $row) {
-            ?>
-            <li data-target="#bootstrap-touch-slider" data-slide-to="<?php echo $i; ?>" <?php if($i==0) {echo 'class="active"';} ?>></li>
-            <?php
-            $i++;
-        }
-        ?>
-    </ol>
+	    <!-- Bootstrap Core CSS -->
+	    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	    
+	    <!-- Customizable CSS -->
+	    <link rel="stylesheet" href="assets/css/main.css">
+	    <link rel="stylesheet" href="assets/css/green.css">
+	    <link rel="stylesheet" href="assets/css/owl.carousel.css">
+		<link rel="stylesheet" href="assets/css/owl.transitions.css">
+		<!--<link rel="stylesheet" href="assets/css/owl.theme.css">-->
+		<link href="assets/css/lightbox.css" rel="stylesheet">
+		<link rel="stylesheet" href="assets/css/animate.min.css">
+		<link rel="stylesheet" href="assets/css/rateit.css">
+		<link rel="stylesheet" href="assets/css/bootstrap-select.min.css">
 
-    <!-- Wrapper For Slides -->
-    <div class="carousel-inner" role="listbox">
+		<!-- Demo Purpose Only. Should be removed in production -->
+		<link rel="stylesheet" href="assets/css/config.css">
 
-        <?php
-        $i=0;
-        $statement = $pdo->prepare("SELECT * FROM tbl_slider");
-        $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($result as $row) {
-            ?>
-            <div class="item <?php if($i==0) {echo 'active';} ?>" style="background-image:url(assets/uploads/<?php echo $row['photo']; ?>);">
-                <div class="bs-slider-overlay"></div>
-                <div class="container">
-                    <div class="row">
-                        <div class="slide-text <?php if($row['position'] == 'Left') {echo 'slide_style_left';} elseif($row['position'] == 'Center') {echo 'slide_style_center';} elseif($row['position'] == 'Right') {echo 'slide_style_right';} ?>">
-                            <h1 data-animation="animated <?php if($row['position'] == 'Left') {echo 'zoomInLeft';} elseif($row['position'] == 'Center') {echo 'flipInX';} elseif($row['position'] == 'Right') {echo 'zoomInRight';} ?>"><?php echo $row['heading']; ?></h1>
-                            <p data-animation="animated <?php if($row['position'] == 'Left') {echo 'fadeInLeft';} elseif($row['position'] == 'Center') {echo 'fadeInDown';} elseif($row['position'] == 'Right') {echo 'fadeInRight';} ?>"><?php echo nl2br($row['content']); ?></p>
-                            <a href="<?php echo $row['button_url']; ?>" target="_blank"  class="btn btn-primary" data-animation="animated <?php if($row['position'] == 'Left') {echo 'fadeInLeft';} elseif($row['position'] == 'Center') {echo 'fadeInDown';} elseif($row['position'] == 'Right') {echo 'fadeInRight';} ?>"><?php echo $row['button_text']; ?></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php
-            $i++;
-        }
-        ?>
-    </div>
+		<link href="assets/css/green.css" rel="alternate stylesheet" title="Green color">
+		<link href="assets/css/blue.css" rel="alternate stylesheet" title="Blue color">
+		<link href="assets/css/red.css" rel="alternate stylesheet" title="Red color">
+		<link href="assets/css/orange.css" rel="alternate stylesheet" title="Orange color">
+		<link href="assets/css/dark-green.css" rel="alternate stylesheet" title="Darkgreen color">
+		<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		<link href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
+		
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="assets/images/favicon.ico">
 
-    <!-- Slider Left Control -->
-    <a class="left carousel-control" href="#bootstrap-touch-slider" role="button" data-slide="prev">
-        <span class="fa fa-angle-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
+	</head>
+    <body class="cnt-home">
+	
+		
+	
+		<!-- ============================================== HEADER ============================================== -->
+<header class="header-style-1">
+<?php include('includes/top-header.php');?>
+<?php include('includes/main-header.php');?>
+<?php include('includes/menu-bar.php');?>
+</header>
 
-    <!-- Slider Right Control -->
-    <a class="right carousel-control" href="#bootstrap-touch-slider" role="button" data-slide="next">
-        <span class="fa fa-angle-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
+<!-- ============================================== HEADER : END ============================================== -->
+<div class="body-content outer-top-xs" id="top-banner-and-menu">
+	<div class="container">
+		<div class="furniture-container homepage-container">
+		<div class="row">
+		
+			<div class="col-xs-12 col-sm-12 col-md-3 sidebar">
+				<!-- ================================== TOP NAVIGATION ================================== -->
+	<?php include('includes/side-menu.php');?>
+<!-- ================================== TOP NAVIGATION : END ================================== -->
+			</div><!-- /.sidemenu-holder -->	
+			
+			<div class="col-xs-12 col-sm-12 col-md-9 homebanner-holder">
+				<!-- ========================================== SECTION – HERO ========================================= -->
+			
+<div id="hero" class="homepage-slider3">
+	<div id="owl-main" class="owl-carousel owl-inner-nav owl-ui-sm">
+		<div class="full-width-slider">	
+			<div class="item" style="background-image: url(assets/images/sliders/slider1.png);">
+				<!-- /.container-fluid -->
+			</div><!-- /.item -->
+		</div><!-- /.full-width-slider -->
+	    
+	    <div class="full-width-slider">
+			<div class="item full-width-slider" style="background-image: url(assets/images/sliders/slider2.png);">
+			</div><!-- /.item -->
+		</div><!-- /.full-width-slider -->
 
+	</div><!-- /.owl-carousel -->
 </div>
+			
+<!-- ========================================= SECTION – HERO : END ========================================= -->	
+				<!-- ============================================== INFO BOXES ============================================== -->
+<div class="info-boxes wow fadeInUp">
+	<div class="info-boxes-inner">
+		<div class="row">
+			<div class="col-md-6 col-sm-4 col-lg-4">
+				<div class="info-box">
+					<div class="row">
+						<div class="col-xs-2">
+						     <i class="icon fa fa-dollar"></i>
+						</div>
+						<div class="col-xs-10">
+							<h4 class="info-box-heading green">money back</h4>
+						</div>
+					</div>	
+					<h6 class="text">30 Day Money Back Guarantee.</h6>
+				</div>
+			</div><!-- .col -->
+
+			<div class="hidden-md col-sm-4 col-lg-4">
+				<div class="info-box">
+					<div class="row">
+						<div class="col-xs-2">
+							<i class="icon fa fa-truck"></i>
+						</div>
+						<div class="col-xs-10">
+							<h4 class="info-box-heading orange">free shipping</h4>
+						</div>
+					</div>
+					<h6 class="text">free ship-on oder over TK. 600.00</h6>	
+				</div>
+			</div><!-- .col -->
+
+			<div class="col-md-6 col-sm-4 col-lg-4">
+				<div class="info-box">
+					<div class="row">
+						<div class="col-xs-2">
+							<i class="icon fa fa-gift"></i>
+						</div>
+						<div class="col-xs-10">
+							<h4 class="info-box-heading red">Special Sale</h4>
+						</div>
+					</div>
+					<h6 class="text">All items-sale up to 20% off </h6>	
+				</div>
+			</div><!-- .col -->
+		</div><!-- /.row -->
+	</div><!-- /.info-boxes-inner -->
+	
+</div><!-- /.info-boxes -->
+<!-- ============================================== INFO BOXES : END ============================================== -->		
+			</div><!-- /.homebanner-holder -->
+			
+		</div><!-- /.row -->
+
+		<!-- ============================================== SCROLL TABS ============================================== -->
+		<div id="product-tabs-slider" class="scroll-tabs inner-bottom-vs  wow fadeInUp">
+			<div class="more-info-tab clearfix">
+			   <h3 class="new-product-title pull-left">Featured Products</h3>
+				<ul class="nav nav-tabs nav-tab-line pull-right" id="new-products-1">
+					<li class="active"><a href="#all" data-toggle="tab">All</a></li>
+					<li><a href="#books" data-toggle="tab">Books</a></li>
+					<li><a href="#furniture" data-toggle="tab">Furniture</a></li>
+				</ul><!-- /.nav-tabs -->
+			</div>
+
+			<div class="tab-content outer-top-xs">
+				<div class="tab-pane in active" id="all">			
+					<div class="product-slider">
+						<div class="owl-carousel home-owl-carousel custom-carousel owl-theme" data-item="4">
+<?php
+$ret=mysqli_query($con,"select * from products");
+while ($row=mysqli_fetch_array($ret)) 
+{
+	# code...
 
 
-<?php if($home_featured_product_on_off == 1): ?>
-<div class="product pt_70 pb_70">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="headline">
-                    <h2><?php echo $featured_product_title; ?></h2>
-                    <h3><?php echo $featured_product_subtitle; ?></h3>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
+?>
 
-                <div class="product-carousel">
+						    	
+		<div class="item item-carousel">
+			<div class="products">
+				
+	<div class="product">		
+		<div class="product-image">
+			<div class="image">
+				<a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>">
+				<img  src="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>"  width="180" height="300" alt=""></a>
+			</div><!-- /.image -->			
 
-                    <?php
-                    $statement = $pdo->prepare("SELECT * FROM tbl_product WHERE p_is_featured=? AND p_is_active=? LIMIT ".$total_featured_product_home);
-                    $statement->execute(array(1,1));
-                    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($result as $row) {
-                        ?>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="photo" style="background-image:url(assets/uploads/<?php echo $row['p_featured_photo']; ?>);"></div>
-                                <div class="overlay"></div>
-                            </div>
-                            <div class="text">
-                                <h3><a href="product.php?id=<?php echo $row['p_id']; ?>"><?php echo $row['p_name']; ?></a></h3>
-                                <h4>
-                                    $<?php echo $row['p_current_price']; ?>
-                                    <?php if($row['p_old_price'] != ''): ?>
-                                    <del>
-                                        $<?php echo $row['p_old_price']; ?>
-                                    </del>
-                                    <?php endif; ?>
-                                </h4>
-                                <div class="rating">
-                                    <?php
-                                    $t_rating = 0;
-                                    $statement1 = $pdo->prepare("SELECT * FROM tbl_rating WHERE p_id=?");
-                                    $statement1->execute(array($row['p_id']));
-                                    $tot_rating = $statement1->rowCount();
-                                    if($tot_rating == 0) {
-                                        $avg_rating = 0;
-                                    } else {
-                                        $result1 = $statement1->fetchAll(PDO::FETCH_ASSOC);
-                                        foreach ($result1 as $row1) {
-                                            $t_rating = $t_rating + $row1['rating'];
-                                        }
-                                        $avg_rating = $t_rating / $tot_rating;
-                                    }
-                                    ?>
-                                    <?php
-                                    if($avg_rating == 0) {
-                                        echo '';
-                                    }
-                                    elseif($avg_rating == 1.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 2.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 3.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 4.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                        ';
-                                    }
-                                    else {
-                                        for($i=1;$i<=5;$i++) {
-                                            ?>
-                                            <?php if($i>$avg_rating): ?>
-                                                <i class="fa fa-star-o"></i>
-                                            <?php else: ?>
-                                                <i class="fa fa-star"></i>
-                                            <?php endif; ?>
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                </div>
+			                        		   
+		</div><!-- /.product-image -->
+			
+		
+		<div class="product-info text-left">
+			<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+			<div class="rating rateit-small"></div>
+			<div class="description"></div>
 
-                                <?php if($row['p_qty'] == 0): ?>
-                                    <div class="out-of-stock">
-                                        <div class="inner">
-                                            Out Of Stock
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <p><a href="product.php?id=<?php echo $row['p_id']; ?>">Add to Cart</a></p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-                </div>
-            </div>
-        </div>
-    </div>
+			<div class="product-price">	
+				<span class="price">
+					TK.<?php echo htmlentities($row['productPrice']);?>			</span>
+										     <span class="price-before-discount">TK.<?php echo htmlentities($row['productPriceBeforeDiscount']);?>	</span>
+									
+			</div><!-- /.product-price -->
+			
+		</div><!-- /.product-info -->
+		<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+			</div><!-- /.product -->
+      
+			</div><!-- /.products -->
+		</div><!-- /.item -->
+	<?php } ?>
+
+			</div><!-- /.home-owl-carousel -->
+					</div><!-- /.product-slider -->
+				</div>
+
+
+
+
+	<div class="tab-pane" id="books">
+					<div class="product-slider">
+						<div class="owl-carousel home-owl-carousel custom-carousel owl-theme">
+		<?php
+$ret=mysqli_query($con,"select * from products where category=3");
+while ($row=mysqli_fetch_array($ret)) 
+{
+	# code...
+
+
+?>
+
+						    	
+		<div class="item item-carousel">
+			<div class="products">
+				
+	<div class="product">		
+		<div class="product-image">
+			<div class="image">
+				<a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>">
+				<img  src="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>"  width="180" height="300" alt=""></a>
+			</div><!-- /.image -->			
+
+			                        		   
+		</div><!-- /.product-image -->
+			
+		
+		<div class="product-info text-left">
+			<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+			<div class="rating rateit-small"></div>
+			<div class="description"></div>
+
+			<div class="product-price">	
+				<span class="price">
+					TK. <?php echo htmlentities($row['productPrice']);?>			</span>
+										     <span class="price-before-discount">Tk.<?php echo htmlentities($row['productPriceBeforeDiscount']);?></span>
+									
+			</div><!-- /.product-price -->
+			
+		</div><!-- /.product-info -->
+				<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+			</div><!-- /.product -->
+      
+			</div><!-- /.products -->
+		</div><!-- /.item -->
+	<?php } ?>
+	
+		
+								</div><!-- /.home-owl-carousel -->
+					</div><!-- /.product-slider -->
+				</div>
+
+
+
+
+
+
+		<div class="tab-pane" id="furniture">
+					<div class="product-slider">
+						<div class="owl-carousel home-owl-carousel custom-carousel owl-theme">
+		<?php
+$ret=mysqli_query($con,"select * from products where category=5");
+while ($row=mysqli_fetch_array($ret)) 
+{
+?>
+
+						    	
+		<div class="item item-carousel">
+			<div class="products">
+				
+	<div class="product">		
+		<div class="product-image">
+			<div class="image">
+				<a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>">
+				<img  src="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>"  width="180" height="300" alt=""></a>
+			</div>		
+
+			                        		   
+		</div>
+			
+		
+		<div class="product-info text-left">
+			<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+			<div class="rating rateit-small"></div>
+			<div class="description"></div>
+
+			<div class="product-price">	
+				<span class="price">
+					<class="typcn typcn-key"><	 >.<?php echo htmlentities($row['productPrice']);?>			</span>
+										     <span class="price-before-discount">Tk.<?php echo htmlentities($row['productPriceBeforeDiscount']);?></span>
+									
+			</div>
+			
+		</div>
+				<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+			</div>
+      
+			</div>
+		</div>
+	<?php } ?>
+	
+		
+								</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		    
+
+         <!-- ============================================== TABS ============================================== -->
+			<div class="sections prod-slider-small outer-top-small">
+				<div class="row">
+					<div class="col-md-6">
+	                   <section class="section">
+	                   	<h3 class="section-title">Smart Phones</h3>
+	                   	<div class="owl-carousel homepage-owl-carousel custom-carousel outer-top-xs owl-theme" data-item="2">
+	   
+<?php
+$ret=mysqli_query($con,"select * from products where category=4 and subCategory=4");
+while ($row=mysqli_fetch_array($ret)) 
+{
+?>
+
+
+
+		<div class="item item-carousel">
+			<div class="products">
+				
+	<div class="product">		
+		<div class="product-image">
+			<div class="image">
+				<a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><img  src="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>"  width="180" height="300"></a>
+			</div><!-- /.image -->			                        		   
+		</div><!-- /.product-image -->
+			
+		
+		<div class="product-info text-left">
+			<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+			<div class="rating rateit-small"></div>
+			<div class="description"></div>
+
+			<div class="product-price">	
+				<span class="price">
+					TK. <?php echo htmlentities($row['productPrice']);?>			</span>
+										     <span class="price-before-discount">TK.<?php echo htmlentities($row['productPriceBeforeDiscount']);?></span>
+									
+			</div>
+			
+		</div>
+				<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+			</div>
+			</div>
+		</div>
+<?php }?>
+
+	
+			                   	</div>
+	                   </section>
+					</div>
+					<div class="col-md-6">
+						<section class="section">
+							<h3 class="section-title">Laptops</h3>
+		                   	<div class="owl-carousel homepage-owl-carousel custom-carousel outer-top-xs owl-theme" data-item="2">
+	<?php
+$ret=mysqli_query($con,"select * from products where category=4 and subCategory=6");
+while ($row=mysqli_fetch_array($ret)) 
+{
+?>
+
+
+
+		<div class="item item-carousel">
+			<div class="products">
+				
+	<div class="product">		
+		<div class="product-image">
+			<div class="image">
+				<a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><img  src="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>"  width="300" height="300"></a>
+			</div><!-- /.image -->			                        		   
+		</div><!-- /.product-image -->
+			
+		
+		<div class="product-info text-left">
+			<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+			<div class="rating rateit-small"></div>
+			<div class="description"></div>
+
+			<div class="product-price">	
+				<span class="price">
+					TK.<?php echo htmlentities($row['productPrice']);?>			</span>
+										     <span class="price-before-discount">TK.<?php echo htmlentities($row['productPriceBeforeDiscount']);?></span>
+									
+			</div>
+			
+		</div>
+				<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+			</div>
+			</div>
+		</div>
+<?php }?>
+
+		
+	
+				                   	</div>
+	                   </section>
+
+					</div>
+				</div>
+			</div>
+		<!-- ============================================== TABS : END ============================================== -->
+
+		
+
+	<section class="section featured-product inner-xs wow fadeInUp">
+		<h3 class="section-title">Fashion</h3>
+		<div class="owl-carousel best-seller custom-carousel owl-theme outer-top-xs">
+			<?php
+$ret=mysqli_query($con,"select * from products where category=6");
+while ($row=mysqli_fetch_array($ret)) 
+{
+	# code...
+
+
+?>
+				<div class="item">
+					<div class="products">
+
+
+
+
+												<div class="product">
+							<div class="product-micro">
+								<div class="row product-micro-row">
+									<div class="col col-xs-6">
+										<div class="product-image">
+											<div class="image">
+												<a href="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" data-lightbox="image-1" data-title="<?php echo htmlentities($row['productName']);?>">
+													<img data-echo="admin/productimages/<?php echo htmlentities($row['id']);?>/<?php echo htmlentities($row['productImage1']);?>" width="170" height="174" alt="">
+													<div class="zoom-overlay"></div>
+												</a>					
+											</div><!-- /.image -->
+
+										</div><!-- /.product-image -->
+									</div><!-- /.col -->
+									<div class="col col-xs-6">
+										<div class="product-info">
+											<h3 class="name"><a href="product-details.php?pid=<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($row['productName']);?></a></h3>
+											<div class="rating rateit-small"></div>
+											<div class="product-price">	
+												<span class="price">
+													TK. <?php echo htmlentities($row['productPrice']);?>
+												</span>
+
+											</div><!-- /.product-price -->
+										<?php if($row['productAvailability']=='In Stock'){?>
+					<div class="action"><a href="index.php?page=product&action=add&id=<?php echo $row['id']; ?>" class="lnk btn btn-primary">Add to Cart</a></div>
+				<?php } else {?>
+						<div class="action" style="color:red">Out of Stock</div>
+					<?php } ?>
+										</div>
+									</div><!-- /.col -->
+								</div><!-- /.product-micro-row -->
+							</div><!-- /.product-micro -->
+						</div>
+
+
+											</div>
+				</div><?php } ?>
+							</div>
+		</section>
+<?php include('includes/brands-slider.php');?>
 </div>
-<?php endif; ?>
-
-
-<?php if($home_latest_product_on_off == 1): ?>
-<div class="product bg-gray pt_70 pb_30">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="headline">
-                    <h2><?php echo $latest_product_title; ?></h2>
-                    <h3><?php echo $latest_product_subtitle; ?></h3>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-
-                <div class="product-carousel">
-
-                    <?php
-                    $statement = $pdo->prepare("SELECT * FROM tbl_product WHERE p_is_active=? ORDER BY p_id DESC LIMIT ".$total_latest_product_home);
-                    $statement->execute(array(1));
-                    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($result as $row) {
-                        ?>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="photo" style="background-image:url(assets/uploads/<?php echo $row['p_featured_photo']; ?>);"></div>
-                                <div class="overlay"></div>
-                            </div>
-                            <div class="text">
-                                <h3><a href="product.php?id=<?php echo $row['p_id']; ?>"><?php echo $row['p_name']; ?></a></h3>
-                                <h4>
-                                    $<?php echo $row['p_current_price']; ?>
-                                    <?php if($row['p_old_price'] != ''): ?>
-                                    <del>
-                                        $<?php echo $row['p_old_price']; ?>
-                                    </del>
-                                    <?php endif; ?>
-                                </h4>
-                                <div class="rating">
-                                    <?php
-                                    $t_rating = 0;
-                                    $statement1 = $pdo->prepare("SELECT * FROM tbl_rating WHERE p_id=?");
-                                    $statement1->execute(array($row['p_id']));
-                                    $tot_rating = $statement1->rowCount();
-                                    if($tot_rating == 0) {
-                                        $avg_rating = 0;
-                                    } else {
-                                        $result1 = $statement1->fetchAll(PDO::FETCH_ASSOC);
-                                        foreach ($result1 as $row1) {
-                                            $t_rating = $t_rating + $row1['rating'];
-                                        }
-                                        $avg_rating = $t_rating / $tot_rating;
-                                    }
-                                    ?>
-                                    <?php
-                                    if($avg_rating == 0) {
-                                        echo '';
-                                    }
-                                    elseif($avg_rating == 1.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 2.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 3.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 4.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                        ';
-                                    }
-                                    else {
-                                        for($i=1;$i<=5;$i++) {
-                                            ?>
-                                            <?php if($i>$avg_rating): ?>
-                                                <i class="fa fa-star-o"></i>
-                                            <?php else: ?>
-                                                <i class="fa fa-star"></i>
-                                            <?php endif; ?>
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                </div>
-                                <?php if($row['p_qty'] == 0): ?>
-                                    <div class="out-of-stock">
-                                        <div class="inner">
-                                            Out Of Stock
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <p><a href="product.php?id=<?php echo $row['p_id']; ?>">Add to Cart</a></p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-
-                </div>
-
-
-            </div>
-        </div>
-    </div>
 </div>
-<?php endif; ?>
+<?php include('includes/footer.php');?>
+	
+	<script src="assets/js/jquery-1.11.1.min.js"></script>
+	
+	<script src="assets/js/bootstrap.min.js"></script>
+	
+	<script src="assets/js/bootstrap-hover-dropdown.min.js"></script>
+	<script src="assets/js/owl.carousel.min.js"></script>
+	
+	<script src="assets/js/echo.min.js"></script>
+	<script src="assets/js/jquery.easing-1.3.min.js"></script>
+	<script src="assets/js/bootstrap-slider.min.js"></script>
+    <script src="assets/js/jquery.rateit.min.js"></script>
+    <script type="text/javascript" src="assets/js/lightbox.min.js"></script>
+    <script src="assets/js/bootstrap-select.min.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+	<script src="assets/js/scripts.js"></script>
 
+	<!-- For demo purposes – can be removed on production -->
+	
+	<script src="switchstylesheet/switchstylesheet.js"></script>
+	
+	<script>
+		$(document).ready(function(){ 
+			$(".changecolor").switchstylesheet( { seperator:"color"} );
+			$('.show-theme-options').click(function(){
+				$(this).parent().toggleClass('open');
+				return false;
+			});
+		});
 
-<?php if($home_popular_product_on_off == 1): ?>
-<div class="product pt_70 pb_70">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="headline">
-                    <h2><?php echo $popular_product_title; ?></h2>
-                    <h3><?php echo $popular_product_subtitle; ?></h3>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
+		$(window).bind("load", function() {
+		   $('.show-theme-options').delay(2000).trigger('click');
+		});
+	</script>
+	<!-- For demo purposes – can be removed on production : End -->
 
-                <div class="product-carousel">
+	
 
-                    <?php
-                    $statement = $pdo->prepare("SELECT * FROM tbl_product WHERE p_is_active=? ORDER BY p_total_view DESC LIMIT ".$total_popular_product_home);
-                    $statement->execute(array(1));
-                    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($result as $row) {
-                        ?>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="photo" style="background-image:url(assets/uploads/<?php echo $row['p_featured_photo']; ?>);"></div>
-                                <div class="overlay"></div>
-                            </div>
-                            <div class="text">
-                                <h3><a href="product.php?id=<?php echo $row['p_id']; ?>"><?php echo $row['p_name']; ?></a></h3>
-                                <h4>
-                                    $<?php echo $row['p_current_price']; ?>
-                                    <?php if($row['p_old_price'] != ''): ?>
-                                    <del>
-                                        $<?php echo $row['p_old_price']; ?>
-                                    </del>
-                                    <?php endif; ?>
-                                </h4>
-                                <div class="rating">
-                                    <?php
-                                    $t_rating = 0;
-                                    $statement1 = $pdo->prepare("SELECT * FROM tbl_rating WHERE p_id=?");
-                                    $statement1->execute(array($row['p_id']));
-                                    $tot_rating = $statement1->rowCount();
-                                    if($tot_rating == 0) {
-                                        $avg_rating = 0;
-                                    } else {
-                                        $result1 = $statement1->fetchAll(PDO::FETCH_ASSOC);
-                                        foreach ($result1 as $row1) {
-                                            $t_rating = $t_rating + $row1['rating'];
-                                        }
-                                        $avg_rating = $t_rating / $tot_rating;
-                                    }
-                                    ?>
-                                    <?php
-                                    if($avg_rating == 0) {
-                                        echo '';
-                                    }
-                                    elseif($avg_rating == 1.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 2.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 3.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        ';
-                                    }
-                                    elseif($avg_rating == 4.5) {
-                                        echo '
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                        ';
-                                    }
-                                    else {
-                                        for($i=1;$i<=5;$i++) {
-                                            ?>
-                                            <?php if($i>$avg_rating): ?>
-                                                <i class="fa fa-star-o"></i>
-                                            <?php else: ?>
-                                                <i class="fa fa-star"></i>
-                                            <?php endif; ?>
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                </div>
-                                <?php if($row['p_qty'] == 0): ?>
-                                    <div class="out-of-stock">
-                                        <div class="inner">
-                                            Out Of Stock
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <p><a href="product.php?id=<?php echo $row['p_id']; ?>">Add to Cart</a></p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
-
-
-
-
-<?php require_once('footer.php'); ?>
+</body>
+</html>
