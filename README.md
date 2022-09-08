@@ -1,5 +1,7 @@
 # A Complete PHP/MySQL based web application:
 
+## Visit [here](http://devarifkhan.great-site.net/) to view website live.
+
  - Fully Responsive Design.
  - Easy to Registration.
  - Trace Product Delivery.
@@ -8,6 +10,5 @@
  - Review Modify Facility.
  - Product Comment's Panel.
  - Report / Activity Section.
- - SEO Friendly URL.
  - Product Database.
  - Easy to order system.
